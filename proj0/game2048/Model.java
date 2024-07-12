@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author OvidEros
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -137,7 +137,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int n = b.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+               if (b.tile(i,j) == null) {
+                   return true;
+               }
+            }
+        }
         return false;
     }
 
@@ -147,7 +154,17 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int n = b.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (b.tile(i,j) == null) {
+                    continue;
+                }
+                if (b.tile(i,j).value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,7 +175,32 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        int n = b.size();
+        // check whether horizontal adjacent tiles exists
+        for (int i = 0; i < n-1; i++) {
+            for (int j = 0; j < n; j++) {
+                if (b.tile(i,j) == null || b.tile(i+1,j) == null) {
+                    continue;
+                }
+                if (b.tile(i,j).value() == b.tile(i+1,j).value()) {
+                    return true;
+                }
+            }
+        }
+        // check whether vertical adjacent tiles exists
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n-1; j++) {
+                if (b.tile(i,j) == null || b.tile(i,j+1) == null) {
+                    continue;
+                }
+                if (b.tile(i,j).value() == b.tile(i,j+1).value()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
