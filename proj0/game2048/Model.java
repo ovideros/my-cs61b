@@ -113,12 +113,79 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.setViewingPerspective(side);
+        int n = board.size();
+        for (int col = 0; col < n; col++) {
+            if(tiltColumnNorth(col)) {
+                changed = true;
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    /** Tilt a certain column towards NORTH,
+     * if changed, return true;
+     * else, return false */
+    public boolean tiltColumnNorth(int col) {
+       int n = board.size();
+       int lastTileRow = n;
+       boolean changed = false;
+       boolean isLastMerged = false;
+       int lastValue = -1;
+       for (int row = n-1; row >= 0; row--) {
+           Tile t = board.tile(col, row);
+            if (t == null) {
+                continue;
+            }
+            int val = t.value();
+            switch (calculateState(lastTileRow, isLastMerged,
+                    lastValue,val,row)) {
+                // don't move
+                case 0:
+                    lastTileRow--;
+                    isLastMerged = false;
+                    lastValue = val;
+                    break;
+                // move, don't merge
+                case 1:
+                    board.move(col, lastTileRow-1, t);
+                    changed = true;
+                    isLastMerged = false;
+                    lastTileRow--;
+                    lastValue = val;
+                    break;
+               //move and merge
+                case 2:
+                    board.move(col, lastTileRow, t);
+                    changed = true;
+                    isLastMerged = true;
+                    score += 2*val;
+                    lastValue = 2*val;
+                    break;
+            }
+       }
+       return changed;
+    }
+
+    /** Calculate state.
+     * if return 0, don't move
+     * if return 1, move but don't merge
+     * if return 2, move and merge
+     */
+    public int calculateState(int lastTileRow, boolean isLastMerged, int lastValue, int val, int row) {
+        if (row == lastTileRow-1 && lastValue != val) {
+            return 0;
+        } else if (val != lastValue || isLastMerged) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
     /** Checks if the game is over and sets the gameOver variable
