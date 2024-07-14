@@ -6,6 +6,7 @@ public class ArrayDeque<T> {
     private int nextFirst;
     private int nextLast;
     private static final int INIT_SIZE = 8;
+    private static final int MAX_EMPTY_SIZE = 16;
 
     public ArrayDeque() {
         items = (T[]) new Object[INIT_SIZE];
@@ -15,12 +16,14 @@ public class ArrayDeque<T> {
     }
 
     public void addLast(T item) {
+        checkExpand();
         items[nextLast] = item;
         nextLast = nextIndex(nextLast);
         size += 1;
     }
 
     public void addFirst(T item) {
+        checkExpand();
         items[nextFirst] = item;
         nextFirst = prevIndex(nextFirst);
         size += 1;
@@ -30,6 +33,7 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         }
+        checkEmptySpace();
         T item = items[nextIndex(nextFirst)];
         items[nextIndex(nextFirst)] = null;
         nextFirst = nextIndex(nextFirst);
@@ -41,6 +45,7 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         }
+        checkEmptySpace();
         T item = items[prevIndex(nextLast)];
         items[prevIndex(nextLast)] = null;
         nextLast = prevIndex(nextLast);
@@ -63,24 +68,60 @@ public class ArrayDeque<T> {
         return size;
     }
 
+    /** Check whether after add new item,
+     * the AList needs to expand. If so,
+     * call expandSize.
+     */
+    private void checkExpand() {
+        if (size != items.length) {
+            return;
+        }
+        resize(size * 2);
+    }
+
+    /** Check whether empty space exists.*/
+    private void checkEmptySpace() {
+        if (items.length >= MAX_EMPTY_SIZE
+                && size < 0.25*items.length) {
+            resize((int)(items.length / 2));
+        }
+        return;
+    }
+
+    /** Expand array to newSize, which is larger than now.*/
+    private void resize(int newSize) {
+        T[] newArray = (T[]) new Object[newSize];
+        int first = nextIndex(nextFirst);
+        // if the items are circular
+        if (isCircular()){
+            System.arraycopy(items,first,newArray,
+                    0,items.length-first);
+            System.arraycopy(items,0,newArray,
+                    items.length-first,nextLast);
+        }
+        else {
+            System.arraycopy(items,first,newArray,0,size);
+        }
+        items = newArray;
+        nextFirst = newSize-1;
+        nextLast = size;
+    }
+
     public void printDeque() {
-        int start = nextIndex(nextFirst);
-        int end = prevIndex(nextLast);
-        if (end > start) {
-            for (int i = start; i <= end; i++) {
-                System.out.print(items[i]);
-                System.out.print(' ');
+        int first = nextIndex(nextFirst);
+        int last = prevIndex(nextLast);
+        if (isCircular()) {
+            for (int i = first; i < items.length; i++) {
+                System.out.print(items[i] + " ");
+            }
+            for (int i = 0; i <= last; i++) {
+                System.out.print(items[i] + " ");
             }
             System.out.println();
         }
         else {
-            for (int i = start; i < items.length; i++) {
-                System.out.print(items[i]);
-                System.out.print(' ');
-            }
-            for (int i = 0; i <= end; i++) {
-                System.out.print(items[i]);
-                System.out.print(' ');
+            for (int i = first; i <= last; i++) {
+                System.out.print(items[i] + " ");
             }
             System.out.println();
         }
@@ -100,14 +141,10 @@ public class ArrayDeque<T> {
         return n-1;
     }
 
-    public static void main(String[] args) {
-        ArrayDeque<Integer> ad = new ArrayDeque<>();
-        ad.addLast(5);
-        ad.addLast(1);
-        ad.addFirst(4);
-        ad.addLast(4);
-        ad.addFirst(1);
-        ad.addFirst(1);
-        ad.printDeque();
+    /** If circular, return true.*/
+    private boolean isCircular() {
+        int first = nextIndex(nextFirst);
+        int last = prevIndex(nextLast);
+        return first > last;
     }
 }
