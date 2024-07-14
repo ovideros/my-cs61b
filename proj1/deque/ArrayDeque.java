@@ -22,7 +22,7 @@ public class ArrayDeque<T> {
 
     public void addFirst(T item) {
         items[nextFirst] = item;
-        nextFirst = nextIndex(nextFirst);
+        nextFirst = prevIndex(nextFirst);
         size += 1;
     }
 
@@ -98,5 +98,16 @@ public class ArrayDeque<T> {
             return items.length-1;
         }
         return n-1;
+    }
+
+    public static void main(String[] args) {
+        ArrayDeque<Integer> ad = new ArrayDeque<>();
+        ad.addLast(5);
+        ad.addLast(1);
+        ad.addFirst(4);
+        ad.addLast(4);
+        ad.addFirst(1);
+        ad.addFirst(1);
+        ad.printDeque();
     }
 }
