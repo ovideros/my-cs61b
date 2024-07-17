@@ -46,7 +46,6 @@ import student.StudentArrayDeque;
 
     /** True means <=3; false means > 3.*/
     private void appendHelper(int mS,ArrayDequeSolution<String> m, int type, int rV) {
-
         switch (type) {
             case 0:
                 m.addLast("addFirst(" + rV + ")\n");
@@ -61,7 +60,7 @@ import student.StudentArrayDeque;
                 m.addLast("removeLast()\n");
                 break;
         }
-        if (mS > 4) {
+        if (mS > 2) {
             m.removeFirst();
         }
     }
@@ -71,7 +70,6 @@ import student.StudentArrayDeque;
 
         for (int i = 0; i < m.size(); i++) {
             str.append(m.get(i));
-            i += 1;
         }
         return str.toString();
     }
