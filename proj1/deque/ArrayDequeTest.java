@@ -1,6 +1,9 @@
 package deque;
 
 import org.junit.Test;
+
+import java.util.Iterator;
+
 import static org.junit.Assert.*;
 
 public class ArrayDequeTest {
@@ -101,5 +104,57 @@ public class ArrayDequeTest {
         }
 
     }
+
+    @Test
+    public void iteratorTest() {
+        ArrayDeque<Integer> lld= new ArrayDeque<>();
+        lld.addLast(1);
+        lld.addLast(4);
+        lld.addLast(5);
+        Iterator<Integer> iter = lld.iterator();
+        assertEquals(1,(int) iter.next());
+        assertEquals(4,(int) iter.next());
+        assertEquals(5,(int) iter.next());
+        assertFalse(iter.hasNext());
+    }
+
+    @Test
+    public void equalsTest() {
+        LinkedListDeque<Integer> l1 = new LinkedListDeque<>();
+        LinkedListDeque<Integer> l2;
+        l1.addFirst(3);
+        l2 = null;
+        assertNotEquals(l1, l2);
+        l2 = l1;
+        assertEquals(l1, l2);
+        l1.addLast(4);
+        l2 = new LinkedListDeque<>();
+        l2.addLast(4);
+        l2.addFirst(3);
+        assertEquals(l1, l2);
+    }
+
+    @Test
+    public void getTest() {
+        LinkedListDeque<Integer> l1 = new LinkedListDeque<>();
+        l1.addLast(0);
+        l1.addLast(1);
+        assertEquals(0,(int) l1.get(0));
+        assertEquals(1,(int) l1.get(1));
+        l1.addLast(2);
+        l1.addLast(3);
+        l1.addLast(4);
+        l1.addLast(5);
+        l1.addLast(6);
+        l1.addLast(7);
+        l1.addLast(8);
+        l1.addLast(9);
+        l1.addLast(10);
+        assertEquals(3,(int) l1.get(3));
+        assertEquals(0,(int) l1.get(0));
+        assertEquals(5,(int) l1.get(5));
+        assertEquals(10,(int) l1.get(10));
+    }
+
 
 }

@@ -1,6 +1,10 @@
 package deque;
 
-public class ArrayDeque<T> {
+import afu.org.checkerframework.checker.oigj.qual.O;
+
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     private T[] items;
     private int size;
     private int nextFirst;
@@ -15,6 +19,7 @@ public class ArrayDeque<T> {
         nextLast = 0;
     }
 
+    @Override
     public void addLast(T item) {
         checkExpand();
         items[nextLast] = item;
@@ -22,6 +27,7 @@ public class ArrayDeque<T> {
         size += 1;
     }
 
+    @Override
     public void addFirst(T item) {
         checkExpand();
         items[nextFirst] = item;
@@ -29,6 +35,7 @@ public class ArrayDeque<T> {
         size += 1;
     }
 
+    @Override
     public T removeFirst() {
         if (size == 0) {
             return null;
@@ -41,6 +48,7 @@ public class ArrayDeque<T> {
         return item;
     }
 
+    @Override
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -53,17 +61,22 @@ public class ArrayDeque<T> {
         return item;
     }
 
+
+    @Override
     public T get(int index) {
-        if (index >= items.length){
+        if (index < 0 || index >= size) {
             return null;
         }
-        return items[index];
+        if (!isCircular()) {
+            return items[nextIndex(nextFirst) + index];
+        }
+        if (nextFirst + 1 + index < size) {
+            return items[nextFirst + 1 + index];
+        }
+        return items[index-size+nextFirst+1];
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public int size() {
         return size;
     }
@@ -105,6 +118,7 @@ public class ArrayDeque<T> {
         nextLast = size;
     }
 
+    @Override
     public void printDeque() {
         int first = nextIndex(nextFirst);
         int last = prevIndex(nextLast);
@@ -144,5 +158,58 @@ public class ArrayDeque<T> {
         int first = nextIndex(nextFirst);
         int last = prevIndex(nextLast);
         return first > last;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int pos;
+
+        public ArrayDequeIterator() {
+            pos = nextIndex(nextFirst);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos != nextLast;
+        }
+
+        @Override
+        public T next() {
+            T returnItem = items[pos];
+            pos = nextIndex(pos);
+            return returnItem;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof ArrayDeque<?>)) {
+            return false;
+        }
+
+        ArrayDeque<?> other = (ArrayDeque<?>) o;
+        if (size != other.size) {
+            return false;
+        }
+        int p1 = nextIndex(nextFirst);
+        int p2 = p1;
+        while (p1 != nextLast) {
+            if (!items[p1].equals(other.items[p2])) {
+                return false;
+            }
+            p1 = nextIndex(p1);
+            p2 = p1;
+        }
+        return true;
     }
 }
