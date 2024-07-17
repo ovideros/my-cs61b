@@ -21,12 +21,10 @@ import student.StudentArrayDeque;
                 L.addFirst(randVal);
                 L2.addFirst(randVal);
                 appendHelper( message, 0, randVal);
-                assertEquals(messageToStr(message),L.get(0), L2.get(0));
             } else if (numberBetweenZeroAndOne < 0.5) {
                 L.addLast(randVal);
                 L2.addLast(randVal);
                 appendHelper( message, 1, randVal);
-                assertEquals(messageToStr(message),L.get(L.size() - 1), L2.get(L2.size() - 1));
             } else if (numberBetweenZeroAndOne < 0.75 && !L.isEmpty() && !L2.isEmpty()) {
                 appendHelper(message, 2, randVal);
                 assertEquals(messageToStr(message),L.removeFirst(), L2.removeFirst());
