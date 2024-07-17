@@ -1,7 +1,6 @@
 package gh2;
 
 import deque.Deque;
-import deque.ArrayDeque;
 import deque.LinkedListDeque;
 
 //Note: This file will not compile until you complete the Deque implementations

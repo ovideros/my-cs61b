@@ -120,15 +120,15 @@ public class ArrayDequeTest {
 
     @Test
     public void equalsTest() {
-        LinkedListDeque<Integer> l1 = new LinkedListDeque<>();
-        LinkedListDeque<Integer> l2;
+        ArrayDeque<Integer> l1 = new ArrayDeque<>();
+        ArrayDeque<Integer> l2;
         l1.addFirst(3);
         l2 = null;
         assertNotEquals(l1, l2);
         l2 = l1;
         assertEquals(l1, l2);
         l1.addLast(4);
-        l2 = new LinkedListDeque<>();
+        l2 = new ArrayDeque<>();
         l2.addLast(4);
         l2.addFirst(3);
         assertEquals(l1, l2);
@@ -136,7 +136,7 @@ public class ArrayDequeTest {
 
     @Test
     public void getTest() {
-        LinkedListDeque<Integer> l1 = new LinkedListDeque<>();
+        ArrayDeque<Integer> l1 = new ArrayDeque<>();
         l1.addLast(0);
         l1.addLast(1);
         assertEquals(0,(int) l1.get(0));

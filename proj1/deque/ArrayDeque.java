@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private T[] items;
     private int size;
     private int nextFirst;
@@ -13,7 +13,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     public ArrayDeque() {
         items = (T[]) new Object[INIT_SIZE];
         size = 0;
-        nextFirst = INIT_SIZE-1;
+        nextFirst = INIT_SIZE - 1;
         nextLast = 0;
     }
 
@@ -68,10 +68,10 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
         if (!isCircular()) {
             return items[nextIndex(nextFirst) + index];
         }
-        if (nextFirst + 1 + index < size) {
+        if (nextFirst + 1 + index < items.length) {
             return items[nextFirst + 1 + index];
         }
-        return items[index-size+nextFirst+1];
+        return items[index - items.length + nextFirst + 1];
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     /** Check whether empty space exists.*/
     private void checkEmptySpace() {
         if (items.length >= MAX_EMPTY_SIZE
-                && size < 0.25*items.length) {
+                && size < 0.25 * items.length) {
             resize(items.length / 2);
         }
         return;
@@ -102,17 +102,15 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
         T[] newArray = (T[]) new Object[newSize];
         int first = nextIndex(nextFirst);
         // if the items are circular
-        if (isCircular()){
-            System.arraycopy(items,first,newArray,
-                    0,items.length-first);
-            System.arraycopy(items,0,newArray,
-                    items.length-first,nextLast);
+        if (isCircular()) {
+            System.arraycopy(items, first, newArray, 0, items.length-first);
+            System.arraycopy(items, 0, newArray, items.length - first, nextLast);
         }
         else {
-            System.arraycopy(items,first,newArray,0,size);
+            System.arraycopy(items, first, newArray, 0, size);
         }
         items = newArray;
-        nextFirst = newSize-1;
+        nextFirst = newSize - 1;
         nextLast = size;
     }
 
@@ -128,8 +126,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
                 System.out.print(items[i] + " ");
             }
             System.out.println();
-        }
-        else {
+        } else {
             for (int i = first; i <= last; i++) {
                 System.out.print(items[i] + " ");
             }
@@ -138,17 +135,17 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     }
 
     private int nextIndex(int n) {
-        if (n+1 == items.length) {
+        if (n + 1 == items.length) {
             return 0;
         }
-        return n+1;
+        return n + 1;
     }
 
     private int prevIndex(int n) {
         if (n == 0) {
-            return items.length-1;
+            return items.length - 1;
         }
-        return n-1;
+        return n - 1;
     }
 
     /** If circular, return true.*/
@@ -166,7 +163,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     private class ArrayDequeIterator implements Iterator<T> {
         private int pos;
 
-        public ArrayDequeIterator() {
+        private ArrayDequeIterator() {
             pos = nextIndex(nextFirst);
         }
 
