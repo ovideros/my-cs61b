@@ -69,9 +69,7 @@ public class ArrayDeque<T> {
     }
 
     /** Check whether after add new item,
-     * the AList needs to expand. If so,
-     * call expandSize.
-     */
+     * the AList needs to expand. If so, call expandSize.*/
     private void checkExpand() {
         if (size != items.length) {
             return;
@@ -83,12 +81,12 @@ public class ArrayDeque<T> {
     private void checkEmptySpace() {
         if (items.length >= MAX_EMPTY_SIZE
                 && size < 0.25*items.length) {
-            resize((int)(items.length / 2));
+            resize(items.length / 2);
         }
         return;
     }
 
-    /** Expand array to newSize, which is larger than now.*/
+    /** Expand array to newSize.*/
     private void resize(int newSize) {
         T[] newArray = (T[]) new Object[newSize];
         int first = nextIndex(nextFirst);
