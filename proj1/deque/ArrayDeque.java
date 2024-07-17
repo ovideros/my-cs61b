@@ -103,10 +103,9 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         int first = nextIndex(nextFirst);
         // if the items are circular
         if (isCircular()) {
-            System.arraycopy(items, first, newArray, 0, items.length-first);
+            System.arraycopy(items, first, newArray, 0, items.length - first);
             System.arraycopy(items, 0, newArray, items.length - first, nextLast);
-        }
-        else {
+        } else {
             System.arraycopy(items, first, newArray, 0, size);
         }
         items = newArray;
