@@ -1,7 +1,5 @@
 package deque;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
-
 import java.util.Iterator;
 
 public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
@@ -193,22 +191,18 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
         if (o == null) {
             return false;
         }
-        if (!(o instanceof ArrayDeque<?>)) {
+        if (!(o instanceof Deque<?>)) {
             return false;
         }
 
-        ArrayDeque<?> other = (ArrayDeque<?>) o;
-        if (size != other.size) {
+        Deque<?> other = (Deque<?>) o;
+        if (size != other.size()) {
             return false;
         }
-        int p1 = nextIndex(nextFirst);
-        int p2 = p1;
-        while (p1 != nextLast) {
-            if (!items[p1].equals(other.items[p2])) {
+        for (int i = 0; i < size; i++) {
+            if (!get(i).equals(other.get(i))) {
                 return false;
             }
-            p1 = nextIndex(p1);
-            p2 = p1;
         }
         return true;
     }

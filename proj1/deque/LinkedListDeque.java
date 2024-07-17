@@ -2,8 +2,6 @@ package deque;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-
 public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
 
     private Node sentinel;
@@ -142,21 +140,17 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
         if (o == null) {
             return false;
         }
-        if (!(o instanceof LinkedListDeque<?>)) {
+        if (!(o instanceof Deque<?>)) {
             return false;
         }
-        LinkedListDeque<?> other = (LinkedListDeque<?>) o;
-        if (size != other.size) {
+        Deque<?> other = (Deque<?>) o;
+        if (size != other.size()) {
             return false;
         }
-        Node p1 = sentinel.next;
-        Node p2 = (Node) other.sentinel.next;
-        while (p1 != sentinel && p2 != sentinel) {
-            if (!p1.item.equals(p2.item)) {
+        for (int i = 0; i < size; i++) {
+            if (!get(i).equals(other.get(i))) {
                 return false;
             }
-            p1 = p1.next;
-            p2 = p2.next;
         }
         return true;
     }
