@@ -22,6 +22,7 @@ public class TimeSLList {
     }
 
     public static void timeGetLast() {
+<<<<<<< HEAD
         AList<Integer> Ns = new AList<>();
         AList<Double> times = new AList<>();
         AList<Integer> opCounts = new AList<>();
@@ -40,6 +41,9 @@ public class TimeSLList {
             opCounts.addLast(10000);
         }
         printTimingTable(Ns, times, opCounts);
+=======
+        // TODO: YOUR CODE HERE
+>>>>>>> 160747451c147c59d8e3cbf70a7afee2b73bebdb
     }
 
 }

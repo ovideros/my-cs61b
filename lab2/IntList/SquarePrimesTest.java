@@ -11,6 +11,7 @@ public class SquarePrimesTest {
      * is broken. Write your own JUnit Test to try to uncover the bug!
      */
     @Test
+<<<<<<< HEAD
     public void testSquarePrimesSmall() {
         IntList lst = IntList.of(2,3,4,5,6,7);
         boolean changed = IntListExercises.squarePrimes(lst);
@@ -25,6 +26,8 @@ public class SquarePrimesTest {
         assertFalse(changed);
     }
     @Test
+=======
+>>>>>>> 160747451c147c59d8e3cbf70a7afee2b73bebdb
     public void testSquarePrimesSimple() {
         IntList lst = IntList.of(14, 15, 16, 17, 18);
         boolean changed = IntListExercises.squarePrimes(lst);
