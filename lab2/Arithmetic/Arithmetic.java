@@ -20,10 +20,6 @@ public class Arithmetic {
      * @return Sum of a and b
      * */
     public static int sum(int a, int b) {
-<<<<<<< HEAD
         return a + b;
-=======
-        return a * b;
->>>>>>> 160747451c147c59d8e3cbf70a7afee2b73bebdb
     }
 }
