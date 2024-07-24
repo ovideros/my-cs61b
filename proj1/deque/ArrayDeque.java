@@ -10,6 +10,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private static final int INIT_SIZE = 8;
     private static final int MAX_EMPTY_SIZE = 16;
 
+    @SuppressWarnings("unchecked")
     public ArrayDeque() {
         items = (T[]) new Object[INIT_SIZE];
         size = 0;
@@ -97,7 +98,9 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         return;
     }
 
+
     /** Expand array to newSize.*/
+    @SuppressWarnings("unchecked")
     private void resize(int newSize) {
         T[] newArray = (T[]) new Object[newSize];
         int first = nextIndex(nextFirst);

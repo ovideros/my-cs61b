@@ -11,7 +11,7 @@ SHELL = /bin/bash
 JFLAGS = -ea
 
 # See comment in ../Makefile
-PYTHON = python3
+PYTHON = python
 
 RMAKE = "$(MAKE)"
 
@@ -31,7 +31,7 @@ default:
 	$(RMAKE) PYTHON=$(PYTHON) check
 
 check:
-	@CLASSPATH=..:$(CLASSPATH) java -ea capers.Main >/dev/null 2>&1 || true
+	@CLASSPATH=..:$(CLASSPATH) java -ea capers.Main >/dev/null 2>&1 || VER>NUL
 	@echo "Testing application capers.Main..."
 	$(TESTER) $(TESTER_FLAGS) --src=$(SRCDIR) $(TESTS)
 
