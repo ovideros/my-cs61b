@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
-    Node<K, V> root;
-    int size = 0;
+    private Node<K, V> root;
+    private int size = 0;
     private Set<K> keySet = new HashSet<>();
 
     private static class Node<K, V> {
@@ -27,6 +27,19 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     public void clear() {
         root = null;
         size = 0;
+    }
+
+    public void printInOrder() {
+        print(root);
+    }
+
+    private void print(Node<K, V> now) {
+        if (now == null) {
+            return;
+        }
+        print(now.left);
+        System.out.println(now.key);
+        print(now.right);
     }
 
     @Override
@@ -72,11 +85,9 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
         if (key.compareTo(now.key) < 0) {
             now.left = insert(now.left, key, value);
-        }
-        else if (key.compareTo(now.key) > 0) {
+        } else if (key.compareTo(now.key) > 0) {
             now.right = insert(now.right, key, value);
-        }
-        else {
+        } else {
             now.value = value;
         }
         return now;
@@ -127,6 +138,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
                     now.key = other.key;
                     now.value = other.value;
                     now.left = deleteMax(now.left);
+                default:
+                    return null;
             }
         }
         return now;
@@ -164,10 +177,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         } else if (now.left != null && now.right == null) {
             return -1;
         } else if (now.left == null && now.right != null) {
-           return 1;
+            return 1;
         }
         return 2;
     }
-
-
 }
