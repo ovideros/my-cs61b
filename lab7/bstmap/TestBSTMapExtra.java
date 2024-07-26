@@ -78,6 +78,10 @@ public class TestBSTMapExtra {
         assertTrue(q.containsKey("a"));
         assertTrue(q.containsKey("b"));
         assertTrue(q.containsKey("f"));
+        q.remove("a");
+        q.remove("b");
+        q.remove("f");
+        assertEquals(0, q.size());
     }
 
     /* Remove Test 3
