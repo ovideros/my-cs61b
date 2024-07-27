@@ -93,22 +93,25 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param tableSize the size of the table to create
      */
     private Collection<Node>[] createTable(int tableSize) {
-         Collection<Node>[] col = new Collection[tableSize];
-         for (int i = 0; i < col.length; i++) {
-             col[i] = createBucket();
-         }
-         return col;
+        Collection<Node>[] col = new Collection[tableSize];
+        for (int i = 0; i < col.length; i++) {
+            col[i] = createBucket();
+        }
+        return col;
     }
 
     @Override
     public void clear() {
-        Arrays.fill(buckets, createBucket());
+        for (int i = 0; i < buckets.length; i++) {
+            buckets[i] = createBucket();
+        }
         size = 0;
+        keySet.clear();
     }
 
     @Override
     public boolean containsKey(K key) {
-        Collection<Node> bucket= buckets[hashIndex(key)];
+        Collection<Node> bucket = buckets[hashIndex(key, buckets.length)];
         for (Node node : bucket) {
             if (node.key.equals(key)) {
                 return true;
@@ -117,13 +120,13 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         return false;
     }
 
-    private int hashIndex(K key) {
-        return Math.floorMod(key.hashCode(), buckets.length);
+    private int hashIndex(K key, int length) {
+        return Math.floorMod(key.hashCode(), length);
     }
 
     @Override
     public V get(K key) {
-        Collection<Node> bucket= buckets[hashIndex(key)];
+        Collection<Node> bucket = buckets[hashIndex(key, buckets.length)];
         for (Node node : bucket) {
             if (node.key.equals(key)) {
                 return node.value;
@@ -139,7 +142,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public void put(K key, V value) {
-        Collection<Node> bucket= buckets[hashIndex(key)];
+        checkResize();
+        Collection<Node> bucket = buckets[hashIndex(key, buckets.length)];
         keySet.add(key);
         boolean flag = false;
         for (Node node : bucket) {
@@ -153,7 +157,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
             bucket.add(newNode);
             size += 1;
         }
-        checkResize();
     }
 
     @Override
@@ -171,15 +174,16 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         Collection<Node>[] newBuckets = createTable(newSize);
         for (Collection<Node> bucket : buckets) {
             for (Node node : bucket) {
-                newBuckets[hashIndex(node.key)].add(node);
+                newBuckets[hashIndex(node.key, newSize)].add(node);
             }
         }
         buckets = newBuckets;
+
     }
 
     @Override
     public V remove(K key) {
-        Collection<Node> bucket= buckets[hashIndex(key)];
+        Collection<Node> bucket = buckets[hashIndex(key, buckets.length)];
         for (Node node : bucket) {
             if (node.key.equals(key)) {
                 bucket.remove(node);
@@ -191,7 +195,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public V remove(K key, V value) {
-        Collection<Node> bucket= buckets[hashIndex(key)];
+        Collection<Node> bucket = buckets[hashIndex(key, buckets.length)];
         for (Node node : bucket) {
             if (node.key.equals(key) && node.value.equals(value)) {
                 bucket.remove(node);

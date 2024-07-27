@@ -32,7 +32,7 @@ public class TestMyHashMap {
         for (int i = 0; i < 455; i++) {
             b.put("hi" + i, 1);
             //make sure put is working via containsKey and get
-            assertTrue(null != b.get("hi" + i));
+            assertEquals(1, (int) b.get("hi" + i));
             assertTrue(b.containsKey("hi" + i));
         }
         b.clear();
