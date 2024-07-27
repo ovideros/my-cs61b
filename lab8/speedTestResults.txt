@@ -1,0 +1,17 @@
+N       ULLMap      MyHashMap   HashMap
+10      0.00        0.00        0.00
+100     0.00        0.00        0.00
+1000    0.01        0.00        0.00
+10000   0.44        0.01        0.00
+100000  Overflow    0.10        0.05
+
+When N equals to 100000, MyHashMap takes 0.11 seconds,
+compared to Java's HashMap 0.02 seconds.
+When the space is important, then BSTMap/TreeMap
+may be more preferable than HashMap.
+
+When L is 1000 and N is 300000,
+all the results are around 4.86 sec to 5.45 sec.
+This means that the difference is subtle.
+However, ArrayList implementation is the best,
+which takes 4.86 seconds.
