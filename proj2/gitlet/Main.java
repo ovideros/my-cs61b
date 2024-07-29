@@ -1,7 +1,7 @@
 package gitlet;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author OvidEros
  */
 public class Main {
 
@@ -9,16 +9,33 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
+        if (args.length == 0) {
+            exitWithMessage("Please enter a command.");
+        }
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                validateArgsNum(args, 1);
+                new Repository();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                validateArgsNum(args, 2);
+                Repository currRepo = Repository.load();
+                currRepo.add(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            default:
+                exitWithMessage("No command with that name exists.");
+        }
+    }
+
+    static void exitWithMessage(String str) {
+        System.out.println(str);
+        System.exit(0);
+    }
+
+    private static void validateArgsNum(String[] args, int num) {
+        if (args.length != num) {
+            exitWithMessage("Incorrect operands.");
         }
     }
 }
