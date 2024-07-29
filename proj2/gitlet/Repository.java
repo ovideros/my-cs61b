@@ -62,7 +62,7 @@ public class Repository {
         BLOBS_DIR.mkdir();
         COMMITS_DIR.mkdir();
         BRANCHES_DIR.mkdir();
-        Commit initCommit = new Commit("initial commit", null);
+        Commit initCommit = new Commit("initial commit", "");
         Branch master = new Branch(initCommit.toSha1(), "master");
         head = new Head(initCommit.toSha1());
         area = new StagingArea();
@@ -124,10 +124,27 @@ public class Repository {
         if (currCommit.getFiles().get(fileName) != null &&
                 currCommit.getFiles().get(fileName).equals(sha1)) {
             area.removeFileAddition(fileName, sha1);
+            System.exit(0);
         }
         blob.store();
         area.addFileAddition(fileName, sha1);
         area.store();
+    }
+
+    /** Commit with message. */
+    public void commit(String msg) {
+        if (area.additionArea.isEmpty() && area.removalArea.isEmpty()) {
+            Main.exitWithMessage("No changes added to the commit.");
+        }
+        Commit currCommit = Commit.read(head.next);
+        Commit newCommit = currCommit.newCommit(msg);
+        newCommit.updateFiles(area);
+        area.clear();
+        head.next = newCommit.toSha1();
+        newCommit.store();
+        area.store();
+        head.store();
+        // TODO: branch change
     }
 
 

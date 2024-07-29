@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-import java.util.Date; // TODO: You'll likely use this in this class
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -26,44 +24,46 @@ public class Commit implements Serializable {
      */
 
     /** The message of this Commit. */
-    private String message;
+    public String message;
     /** The timestamp of this Commit. */
-    private String timeStamp;
+    public String timeStamp;
     /** The parent node of this Commit. */
-    private Commit parent;
-    private Map<String, String> files;
+    public String parent;
+    public Map<String, String> files;
     private static final Timestamp EPOCH_TIME = new Timestamp(0);
 
     /** Construct a new commit with message and parent. */
-    public Commit(String msg, Commit parent) {
+    public Commit(String msg, String parent) {
         this.message = msg;
         this.parent = parent;
-        this.files = new HashMap<>();
-        if (parent == null) {
+        if (parent.isEmpty()) {
             this.timeStamp = EPOCH_TIME.toString();
+            this.files = new HashMap<>();
         } else {
             Timestamp timeNow = new Timestamp(System.currentTimeMillis());
             this.timeStamp = timeNow.toString();
+            this.files = read(parent).getFiles();
+        }
+    }
+
+    /** Creates a new commit from old one. */
+    public Commit newCommit(String msg) {
+        return new Commit(msg, this.toSha1());
+    }
+
+    public void updateFiles(StagingArea sa) {
+        Map<String, String> newFiles = sa.additionArea;
+        Map<String, String> rmFiles = sa.removalArea;
+        for (String name : newFiles.keySet()) {
+            files.put(name, newFiles.get(name));
+        }
+        for (String name : rmFiles.keySet()) {
+            files.remove(name);
         }
     }
 
     public Map<String, String> getFiles() {
         return files;
-    }
-
-    /** Get message from commit. */
-    public String getMessage() {
-        return message;
-    }
-
-    /** Get pareng from commit. */
-    public Commit getParent() {
-        return parent;
-    }
-
-    /** Get timeStamp from commit. */
-    public String getTimeStamp() {
-        return timeStamp;
     }
 
     /** Get sha1 value for commit as filename,
@@ -76,10 +76,11 @@ public class Commit implements Serializable {
 
     /** Convert message and timeStamp to sha1. */
     public String toSha1() {
-        if (parent == null) {
-            return Utils.sha1(message, timeStamp);
+        StringBuilder tmp = new StringBuilder();
+        for (String name : files.keySet()) {
+            tmp.append(files.get(name));
         }
-        return Utils.sha1(message, timeStamp, parent);
+        return Utils.sha1(message, timeStamp, parent, tmp.toString());
     }
 
     public void addFile(String name, String sha1) {

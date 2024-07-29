@@ -8,8 +8,8 @@ import java.util.Map;
 import static gitlet.Utils.join;
 
 public class StagingArea implements Serializable {
-    private Map<String, String> additionArea;
-    private Map<String, String> removalArea;
+    public Map<String, String> additionArea;
+    public Map<String, String> removalArea;
     private static final String name = "STAGING_AREA";
 
     public StagingArea() {
@@ -24,6 +24,12 @@ public class StagingArea implements Serializable {
     public void removeFileAddition(String name, String sha1) {
         additionArea.remove(name, sha1);
     }
+
+    public void clear() {
+        additionArea = new HashMap<>();
+        removalArea = new HashMap<>();
+    }
+
 
     public void store() {
         Repository.storeInName(Repository.GITLET_DIR, this, name);

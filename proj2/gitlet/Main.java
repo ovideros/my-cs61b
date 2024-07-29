@@ -13,15 +13,25 @@ public class Main {
             exitWithMessage("Please enter a command.");
         }
         String firstArg = args[0];
+        Repository currRepo = null;
+        if (!args[0].equals("init")) {
+            currRepo = Repository.load();
+        }
         switch(firstArg) {
             case "init":
                 validateArgsNum(args, 1);
-                new Repository();
+                currRepo = new Repository();
                 break;
             case "add":
                 validateArgsNum(args, 2);
-                Repository currRepo = Repository.load();
                 currRepo.add(args[1]);
+                break;
+            case "commit":
+                if (args.length == 1) {
+                    exitWithMessage("Please enter a commit message.");
+                }
+                validateArgsNum(args, 2);
+                currRepo.commit(args[1]);
                 break;
             default:
                 exitWithMessage("No command with that name exists.");
