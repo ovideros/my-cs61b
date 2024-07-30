@@ -1,19 +1,14 @@
 package gitlet;
 
-
 import java.io.File;
 import java.io.Serializable;
-import java.util.List;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ *  Contains head and area.
  *
- *  @author TODO
+ *  @author OvidEros
  */
 public class Repository {
 
@@ -55,8 +50,8 @@ public class Repository {
      */
     public Repository() {
         if (GITLET_DIR.exists()) {
-            Main.exitWithMessage("A Gitlet version-control system " +
-                    "already exists in the current directory.");
+            Main.exitWithMessage("A Gitlet version-control system "
+                    + "already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
         BLOBS_DIR.mkdir();
@@ -78,7 +73,7 @@ public class Repository {
     }
 
     /** Using object and its sha1 to store in path. */
-    public static void storeInHashTable(File path, Serializable o , String sha1) {
+    public static void storeInHashTable(File path, Serializable o, String sha1) {
         File folder = join(path, sha1.substring(0, 2));
         if (!folder.exists()) {
             folder.mkdir();
@@ -120,27 +115,27 @@ public class Repository {
         String fileContents = Utils.readContentsAsString(file);
         Blob blob = new Blob(fileContents);
         String sha1 = blob.toSha1();
-        Commit currCommit = Commit.read(head.next);
-        if (currCommit.files().get(fileName) != null &&
-                currCommit.files().get(fileName).equals(sha1)) {
-            area.removeFileAddition(fileName, sha1);
+        Commit currCommit = Commit.read(head.next());
+        if (currCommit.files().get(fileName) != null
+                && currCommit.files().get(fileName).equals(sha1)) {
+            area.getAdditionArea().remove(fileName);
             System.exit(0);
         }
         blob.store();
-        area.addFileAddition(fileName, sha1);
+        area.getAdditionArea().put(fileName, sha1);
         area.store();
     }
 
     /** Commit with message. */
     public void commit(String msg) {
-        if (area.additionArea.isEmpty() && area.removalArea.isEmpty()) {
+        if (area.getAdditionArea().isEmpty() && area.getRemovalArea().isEmpty()) {
             Main.exitWithMessage("No changes added to the commit.");
         }
-        Commit currCommit = Commit.read(head.next);
+        Commit currCommit = Commit.read(head.next());
         Commit newCommit = currCommit.newCommit(msg);
         newCommit.updateFiles(area);
         area.clear();
-        head.next = newCommit.toSha1();
+        head.updateNext(newCommit.toSha1());
         newCommit.store();
         area.store();
         head.store();
@@ -150,14 +145,14 @@ public class Repository {
     /** Remove file. */
     public void rm(String fileName) {
         boolean flag = false;
-        String result1 = area.additionArea.remove(fileName);
+        String result1 = area.getAdditionArea().remove(fileName);
         if (result1 != null) {
             flag = true;
         }
-        Commit currCommit = Commit.read(head.next);
+        Commit currCommit = Commit.read(head.next());
         if (currCommit.files().containsKey(fileName)) {
             String sha1 = currCommit.files().get(fileName);
-            area.addFileRemoval(fileName, sha1);
+            area.getRemovalArea().put(fileName, sha1);
             File rmFile = join(CWD, fileName);
             Utils.restrictedDelete(rmFile);
             flag = true;
@@ -166,9 +161,5 @@ public class Repository {
             Main.exitWithMessage("No reason to remove the file.");
         }
         area.store();
-
-}
-
-
-
+    }
 }

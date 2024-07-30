@@ -72,8 +72,8 @@ public class Commit implements Serializable {
      * @param sa  staging area
      */
     public void updateFiles(StagingArea sa) {
-        Map<String, String> newFiles = sa.additionArea;
-        Map<String, String> rmFiles = sa.removalArea;
+        Map<String, String> newFiles = sa.getAdditionArea();
+        Map<String, String> rmFiles = sa.getAdditionArea();
         for (String name : newFiles.keySet()) {
             files.put(name, newFiles.get(name));
         }
