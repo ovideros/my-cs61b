@@ -1,9 +1,9 @@
 package gitlet;
 
 import java.io.File;
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 import static gitlet.Utils.*;
 
@@ -12,7 +12,7 @@ import static gitlet.Utils.*;
  *
  *  @author OvidEros
  */
-public class Commit implements Serializable {
+public class Commit implements Dumpable {
     /**
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -22,7 +22,7 @@ public class Commit implements Serializable {
     /** The message of this Commit. */
     private String message;
     /** The timestamp of this Commit. */
-    private String timeStamp;
+    private Timestamp timeStamp;
     /** The parent node of this Commit. */
     private String parent;
     /** The Mapping from file names to SHA1 values. */
@@ -49,11 +49,11 @@ public class Commit implements Serializable {
         this.message = msg;
         this.parent = parent;
         if (parent.isEmpty()) {
-            this.timeStamp = EPOCH_TIME.toString();
+            this.timeStamp = EPOCH_TIME;
             this.files = new HashMap<>();
         } else {
             Timestamp timeNow = new Timestamp(System.currentTimeMillis());
-            this.timeStamp = timeNow.toString();
+            this.timeStamp = timeNow;
             this.files = read(parent).files;
         }
     }
@@ -73,7 +73,7 @@ public class Commit implements Serializable {
      */
     public void updateFiles(StagingArea sa) {
         Map<String, String> newFiles = sa.getAdditionArea();
-        Map<String, String> rmFiles = sa.getAdditionArea();
+        Map<String, String> rmFiles = sa.getRemovalArea();
         for (String name : newFiles.keySet()) {
             files.put(name, newFiles.get(name));
         }
@@ -99,7 +99,7 @@ public class Commit implements Serializable {
         for (String name : files.keySet()) {
             tmp.append(files.get(name));
         }
-        return Utils.sha1(message, timeStamp, parent, tmp.toString());
+        return Utils.sha1(message, timeStamp.toString(), parent, tmp.toString());
     }
 
     /** Through SHA1 value read the commit and return it.
@@ -110,5 +110,22 @@ public class Commit implements Serializable {
     public static Commit read(String sha1) {
         File file = Repository.fileFromHashTable(Repository.COMMITS_DIR, sha1);
         return readObject(file, Commit.class);
+    }
+
+    /** Get the parent of this commit. */
+    public String getParent() {
+        return parent;
+    }
+
+    @Override
+    public void dump() {
+        System.out.println("===");
+        System.out.println("commit " + toSha1());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        String formattedDate = dateFormat.format(timeStamp);
+        System.out.println("Date: " + formattedDate);
+        System.out.println(message);
+        System.out.println();
     }
 }

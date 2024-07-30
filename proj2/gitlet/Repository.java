@@ -11,17 +11,13 @@ import static gitlet.Utils.*;
  *  @author OvidEros
  */
 public class Repository {
-
-    Head head;
-    StagingArea area;
-
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
+    Head head;
+    StagingArea area;
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
@@ -33,7 +29,6 @@ public class Repository {
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
     /** The .gitlet/branches directory. */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
-
 
 
     /** Initializing a repository, creating necessary folders and files.
@@ -67,6 +62,7 @@ public class Repository {
         area.store();
     }
 
+    /** Construct repo with head and staging area. */
     public Repository(Head h, StagingArea sa) {
         head = h;
         area = sa;
@@ -82,6 +78,7 @@ public class Repository {
         writeObject(file, o);
     }
 
+    /** Return the file by the path and SHA1 value. */
     public static File fileFromHashTable(File path, String sha1) {
         File folder = join(path, sha1.substring(0, 2));
         if (!folder.exists()) {
@@ -95,7 +92,6 @@ public class Repository {
         File file = join(path, name);
         writeObject(file, o);
     }
-
 
     /** Load all the needed persistent files,
      *  and return current Repository object.
@@ -161,5 +157,15 @@ public class Repository {
             Main.exitWithMessage("No reason to remove the file.");
         }
         area.store();
+    }
+
+    /** Print log. */
+    public void log() {
+        Head p = head;
+        while (!p.next().isEmpty()) {
+            Commit currCommit = Commit.read(p.next());
+            currCommit.dump();
+            p.updateNext(currCommit.getParent());
+        }
     }
 }

@@ -37,6 +37,10 @@ public class Main {
                 validateArgsNum(args, 2);
                 currRepo.rm(args[1]);
                 break;
+            case "log":
+                validateArgsNum(args, 1);
+                currRepo.log();
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }

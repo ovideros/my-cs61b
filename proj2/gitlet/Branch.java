@@ -1,7 +1,5 @@
 package gitlet;
 
-import java.io.Serializable;
-
 public class Branch extends Pointer {
     private String name;
     public Branch(String sha1, String name) {
