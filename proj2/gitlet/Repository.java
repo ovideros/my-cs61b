@@ -121,8 +121,8 @@ public class Repository {
         Blob blob = new Blob(fileContents);
         String sha1 = blob.toSha1();
         Commit currCommit = Commit.read(head.next);
-        if (currCommit.getFiles().get(fileName) != null &&
-                currCommit.getFiles().get(fileName).equals(sha1)) {
+        if (currCommit.files().get(fileName) != null &&
+                currCommit.files().get(fileName).equals(sha1)) {
             area.removeFileAddition(fileName, sha1);
             System.exit(0);
         }
@@ -146,6 +146,28 @@ public class Repository {
         head.store();
         // TODO: branch change
     }
+
+    /** Remove file. */
+    public void rm(String fileName) {
+        boolean flag = false;
+        String result1 = area.additionArea.remove(fileName);
+        if (result1 != null) {
+            flag = true;
+        }
+        Commit currCommit = Commit.read(head.next);
+        if (currCommit.files().containsKey(fileName)) {
+            String sha1 = currCommit.files().get(fileName);
+            area.addFileRemoval(fileName, sha1);
+            File rmFile = join(CWD, fileName);
+            Utils.restrictedDelete(rmFile);
+            flag = true;
+        }
+        if (!flag) {
+            Main.exitWithMessage("No reason to remove the file.");
+        }
+        area.store();
+
+}
 
 
 

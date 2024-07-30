@@ -25,6 +25,10 @@ public class StagingArea implements Serializable {
         additionArea.remove(name, sha1);
     }
 
+    public void addFileRemoval(String name, String sha1) {
+        removalArea.put(name, sha1);
+    }
+
     public void clear() {
         additionArea = new HashMap<>();
         removalArea = new HashMap<>();

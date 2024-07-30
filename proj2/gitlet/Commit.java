@@ -3,36 +3,48 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.sql.Timestamp;
-
 import java.util.*;
 
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ *  Containg message, timeStamp, parent and files.
  *
  *  @author OvidEros
  */
 public class Commit implements Serializable {
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
      */
 
     /** The message of this Commit. */
-    public String message;
+    private String message;
     /** The timestamp of this Commit. */
-    public String timeStamp;
+    private String timeStamp;
     /** The parent node of this Commit. */
-    public String parent;
-    public Map<String, String> files;
+    private String parent;
+    /** The Mapping from file names to SHA1 values. */
+    private Map<String, String> files;
+    /** Default first commit time stamp. */
     private static final Timestamp EPOCH_TIME = new Timestamp(0);
 
-    /** Construct a new commit with message and parent. */
+    /** Get the files mapping from this commit.
+     *
+     * @return files
+     * */
+    public Map<String, String> files() {
+        return files;
+    }
+
+    /** Construct a new commit with message and parent.
+     *  If parent is "", means this is the first commit;
+     *  if not, copy files mapping from parent commit.
+     *
+     * @param msg  message of this commit
+     * @param parent the parent of this commit
+     * */
     public Commit(String msg, String parent) {
         this.message = msg;
         this.parent = parent;
@@ -42,15 +54,23 @@ public class Commit implements Serializable {
         } else {
             Timestamp timeNow = new Timestamp(System.currentTimeMillis());
             this.timeStamp = timeNow.toString();
-            this.files = read(parent).getFiles();
+            this.files = read(parent).files;
         }
     }
 
-    /** Creates a new commit from old one. */
+    /** Creates a new commit from old one.
+     *
+     * @return new commit
+     * */
     public Commit newCommit(String msg) {
         return new Commit(msg, this.toSha1());
     }
 
+    /** Update this commit through staging area.
+     * Add files in addtionArea, remove files in removeArea.
+     *
+     * @param sa  staging area
+     */
     public void updateFiles(StagingArea sa) {
         Map<String, String> newFiles = sa.additionArea;
         Map<String, String> rmFiles = sa.removalArea;
@@ -62,19 +82,18 @@ public class Commit implements Serializable {
         }
     }
 
-    public Map<String, String> getFiles() {
-        return files;
-    }
-
-    /** Get sha1 value for commit as filename,
+    /** Get SHA1 value for commit as filename,
      *  and store in .gitlet/commits/FT/ ,
-     *  FT means first two character.
+     *  FT means the first two character of SHA1.
      */
     public void store() {
         Repository.storeInHashTable(Repository.COMMITS_DIR, this, toSha1());
     }
 
-    /** Convert message and timeStamp to sha1. */
+    /** Convert this commit to SHA1.
+     *
+     * @return SHA1 value of this commit
+     * */
     public String toSha1() {
         StringBuilder tmp = new StringBuilder();
         for (String name : files.keySet()) {
@@ -83,10 +102,11 @@ public class Commit implements Serializable {
         return Utils.sha1(message, timeStamp, parent, tmp.toString());
     }
 
-    public void addFile(String name, String sha1) {
-        files.put(name, sha1);
-    }
-
+    /** Through SHA1 value read the commit and return it.
+     *
+     * @param sha1 the SHA1 value
+     * @return the commit of this SHA1 value
+     */
     public static Commit read(String sha1) {
         File file = Repository.fileFromHashTable(Repository.COMMITS_DIR, sha1);
         return readObject(file, Commit.class);

@@ -17,7 +17,7 @@ public class Main {
         if (!args[0].equals("init")) {
             currRepo = Repository.load();
         }
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 validateArgsNum(args, 1);
                 currRepo = new Repository();
@@ -33,16 +33,30 @@ public class Main {
                 validateArgsNum(args, 2);
                 currRepo.commit(args[1]);
                 break;
+            case "rm":
+                validateArgsNum(args, 2);
+                currRepo.rm(args[1]);
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }
     }
 
-    static void exitWithMessage(String str) {
+    /** Print the str, and exit the program with code 0.
+     *
+     * @param str  exit message to be printed
+     */
+    public static void exitWithMessage(String str) {
         System.out.println(str);
         System.exit(0);
     }
 
+    /** Validate the args contains desired num of Strings,
+     * otherwise exit with message.
+     *
+     * @param args  the args from Main
+     * @param num  desired number of params
+     */
     private static void validateArgsNum(String[] args, int num) {
         if (args.length != num) {
             exitWithMessage("Incorrect operands.");
