@@ -47,6 +47,7 @@ public class Main {
                 } else if (args.length == 4) {
                     currRepo.checkoutCommitFile(args[1], args[3]);
                 } else {
+                    break;
                     // TODO: fill in branches
                 }
                 break;
