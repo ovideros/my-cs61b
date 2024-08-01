@@ -41,6 +41,15 @@ public class Main {
                 validateArgsNum(args, 1);
                 currRepo.log();
                 break;
+            case "checkout":
+                if (args.length == 3) {
+                    currRepo.checkoutFile(args[2]);
+                } else if (args.length == 4) {
+                    currRepo.checkoutCommitFile(args[1], args[3]);
+                } else {
+                    // TODO: fill in branches
+                }
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }

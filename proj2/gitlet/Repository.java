@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 
 import static gitlet.Utils.*;
 
@@ -16,8 +17,10 @@ public class Repository {
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
-    Head head;
-    StagingArea area;
+    private Head head;
+    private StagingArea area;
+    private Commit currCommit;
+    // TODO: Add branches
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
@@ -29,6 +32,7 @@ public class Repository {
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
     /** The .gitlet/branches directory. */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
+    public static final int HASH_PREFIX_LENGTH = 2;
 
 
     /** Initializing a repository, creating necessary folders and files.
@@ -57,20 +61,26 @@ public class Repository {
         head = new Head(initCommit.toSha1());
         area = new StagingArea();
         initCommit.store();
-        master.store();
+        saveState();
+    }
+
+    /** Construct repo with head and staging area. */
+    public Repository(Head h, StagingArea sa, Commit cm) {
+        head = h;
+        area = sa;
+        currCommit = cm;
+    }
+
+    /** Save current state. */
+    private void saveState() {
+        // TODO: save branches
         head.store();
         area.store();
     }
 
-    /** Construct repo with head and staging area. */
-    public Repository(Head h, StagingArea sa) {
-        head = h;
-        area = sa;
-    }
-
     /** Using object and its sha1 to store in path. */
     public static void storeInHashTable(File path, Serializable o, String sha1) {
-        File folder = join(path, sha1.substring(0, 2));
+        File folder = join(path, sha1.substring(0, HASH_PREFIX_LENGTH));
         if (!folder.exists()) {
             folder.mkdir();
         }
@@ -80,11 +90,25 @@ public class Repository {
 
     /** Return the file by the path and SHA1 value. */
     public static File fileFromHashTable(File path, String sha1) {
-        File folder = join(path, sha1.substring(0, 2));
+        File folder = join(path, sha1.substring(0, HASH_PREFIX_LENGTH));
         if (!folder.exists()) {
             Main.exitWithMessage("ERROR!!!!");
         }
         return join(folder, sha1);
+    }
+
+    /** Return the file from hashTable with only prefix SHA1 value. */
+    public static File fileFromHTPrefix(File path, String pSha1) {
+        File folder = join(path, pSha1.substring(0, HASH_PREFIX_LENGTH));
+        List<String> fileSha1s = plainFilenamesIn(folder);
+        if (fileSha1s != null) {
+            for (String sha1 : fileSha1s) {
+                if (sha1.startsWith(pSha1)) {
+                    return join(folder, sha1);
+                }
+            }
+        }
+        return null;
     }
 
     /** Store current object by name. */
@@ -99,7 +123,8 @@ public class Repository {
     public static Repository load() {
         Head head = Head.read();
         StagingArea area = StagingArea.read();
-        return new Repository(head, area);
+        Commit currCommit = getCurrCommit(head);
+        return new Repository(head, area, currCommit);
     }
 
     /** Add file into staging area. */
@@ -111,7 +136,6 @@ public class Repository {
         String fileContents = Utils.readContentsAsString(file);
         Blob blob = new Blob(fileContents);
         String sha1 = blob.toSha1();
-        Commit currCommit = Commit.read(head.next());
         if (currCommit.files().get(fileName) != null
                 && currCommit.files().get(fileName).equals(sha1)) {
             area.getAdditionArea().remove(fileName);
@@ -119,7 +143,7 @@ public class Repository {
         }
         blob.store();
         area.getAdditionArea().put(fileName, sha1);
-        area.store();
+        saveState();
     }
 
     /** Commit with message. */
@@ -127,14 +151,12 @@ public class Repository {
         if (area.getAdditionArea().isEmpty() && area.getRemovalArea().isEmpty()) {
             Main.exitWithMessage("No changes added to the commit.");
         }
-        Commit currCommit = Commit.read(head.next());
         Commit newCommit = currCommit.newCommit(msg);
         newCommit.updateFiles(area);
         area.clear();
         head.updateNext(newCommit.toSha1());
         newCommit.store();
-        area.store();
-        head.store();
+        saveState();
         // TODO: branch change
     }
 
@@ -145,7 +167,6 @@ public class Repository {
         if (result1 != null) {
             flag = true;
         }
-        Commit currCommit = Commit.read(head.next());
         if (currCommit.files().containsKey(fileName)) {
             String sha1 = currCommit.files().get(fileName);
             area.getRemovalArea().put(fileName, sha1);
@@ -156,16 +177,51 @@ public class Repository {
         if (!flag) {
             Main.exitWithMessage("No reason to remove the file.");
         }
-        area.store();
+        saveState();
     }
 
     /** Print log. */
     public void log() {
         Head p = head;
         while (!p.next().isEmpty()) {
-            Commit currCommit = Commit.read(p.next());
-            currCommit.dump();
-            p.updateNext(currCommit.getParent());
+            Commit pCommit = Commit.read(p.next());
+            pCommit.dump();
+            p.updateNext(pCommit.getParent());
         }
+    }
+
+    /** Get current commit through Head. */
+    private static Commit getCurrCommit(Head p) {
+        return Commit.read(p.next());
+    }
+
+    /** Checkout out the file in current commit.
+     *  Replace the working directory with file in blob.
+     */
+    public void checkoutFile(String fileName) {
+        String sha1 = currCommit.files().get(fileName);
+        if (sha1 == null) {
+            Main.exitWithMessage("File does not exist in that commit.");
+        }
+        Blob blob = Blob.read(sha1);
+        blob.writeToCWD(fileName);
+    }
+
+    /** Checkout the file in specific commit.
+     *  Replace the working directory.
+     */
+    public void checkoutCommitFile(String pSha1, String fileName) {
+        File commitFile = fileFromHTPrefix(COMMITS_DIR, pSha1);
+        if (commitFile == null) {
+            Main.exitWithMessage("No commit with that id exists.");
+            return;
+        }
+        Commit commit = Commit.read(commitFile.getName());
+        String blobSha1 = commit.files().get(fileName);
+        if (blobSha1 == null) {
+            Main.exitWithMessage("File does not exist in that commit.");
+        }
+        Blob blob = Blob.read(blobSha1);
+        blob.writeToCWD(fileName);
     }
 }
