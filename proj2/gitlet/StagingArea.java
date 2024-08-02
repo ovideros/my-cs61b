@@ -2,12 +2,14 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static gitlet.Utils.join;
 
-public class StagingArea implements Serializable {
+public class StagingArea implements Dumpable {
     private Map<String, String> additionArea;
     private Map<String, String> removalArea;
     private static final String NAME = "STAGING_AREA";
@@ -43,5 +45,32 @@ public class StagingArea implements Serializable {
     public static StagingArea read() {
         File areaFile = join(Repository.GITLET_DIR, NAME);
         return Utils.readObject(areaFile, StagingArea.class);
+    }
+
+    @Override
+    public void dump() {
+        System.out.println("Staged Files:::");
+        dumpStagedFiles();
+        System.out.println("Removed Files:::");
+    }
+
+    /** Dump staged files. */
+    public void dumpStagedFiles() {
+        Set<String> strs = additionArea.keySet();
+        String[] names = (String[]) strs.toArray();
+        Arrays.sort(names);
+        for (String name : names) {
+            System.out.println(name);
+        }
+    }
+
+    /** Dump removed files. */
+    public void dumpRemovedFiles() {
+        Set<String> strs = removalArea.keySet();
+        String[] names = (String[]) strs.toArray();
+        Arrays.sort(names);
+        for (String name : names) {
+            System.out.println(name);
+        }
     }
 }

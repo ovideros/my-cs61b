@@ -3,7 +3,7 @@ package gitlet;
 import java.io.Serializable;
 
 public class Pointer implements Serializable {
-    private String next;
+    protected String next;
 
     /** Construct a pointer with SHA1. */
     public Pointer(String sha1) {

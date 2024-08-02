@@ -112,6 +112,11 @@ public class Commit implements Dumpable {
         return readObject(file, Commit.class);
     }
 
+    /** Through File read the commit and return it. */
+    public static Commit read(File file) {
+        return readObject(file, Commit.class);
+    }
+
     /** Get the parent of this commit. */
     public String getParent() {
         return parent;

@@ -51,6 +51,10 @@ public class Main {
                     // TODO: fill in branches
                 }
                 break;
+            case "status":
+                validateArgsNum(args, 1);
+                currRepo.status();
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }

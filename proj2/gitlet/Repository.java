@@ -20,7 +20,7 @@ public class Repository {
     private Head head;
     private StagingArea area;
     private Commit currCommit;
-    // TODO: Add branches
+    private Branches branches;
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
@@ -30,22 +30,27 @@ public class Repository {
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     /** The .gitlet/commits directory. */
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-    /** The .gitlet/branches directory. */
-    public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
     public static final int HASH_PREFIX_LENGTH = 2;
+    public static final String DEFAULT_BRANCH_NAME = "master";
 
 
     /** Initializing a repository, creating necessary folders and files.
      *  Check whether current .gitlet exists,
      *  if so, exit with error message.
      *
+     * <p>
      *  Desired file structure:
-     *  .gitlet/        -- overall folder
-     *      - blobs/        -- storing files in the working directory
-     *      - commits/      -- storing commits in history
-     *      - branches/     -- storing different branches
-     *      - HEAD          -- the current HEAD pointer
-     *      - STAGING_AREA  -- staging area
+     *  <ul>
+     *  <li>.gitlet/        -- overall folder</li>
+     *      <ul>
+     *      <li> blobs/        -- storing files in the working directory</li>
+     *      <li> commits/      -- storing commits in history</li>
+     *      <li> BRANCHES      -- storing branches</li>
+     *      <li> HEAD          -- the current HEAD pointer</li>
+     *      <li> STAGING_AREA  -- staging area</li>
+     *      </ul>
+     *  </ul>
+     *  </p>
      */
     public Repository() {
         if (GITLET_DIR.exists()) {
@@ -55,9 +60,10 @@ public class Repository {
         GITLET_DIR.mkdir();
         BLOBS_DIR.mkdir();
         COMMITS_DIR.mkdir();
-        BRANCHES_DIR.mkdir();
         Commit initCommit = new Commit("initial commit", "");
-        Branch master = new Branch(initCommit.toSha1(), "master");
+        branches = new Branches();
+        branches.putBranch(DEFAULT_BRANCH_NAME, initCommit.toSha1());
+        branches.setActiveBranch(DEFAULT_BRANCH_NAME);
         head = new Head(initCommit.toSha1());
         area = new StagingArea();
         initCommit.store();
@@ -65,15 +71,16 @@ public class Repository {
     }
 
     /** Construct repo with head and staging area. */
-    public Repository(Head h, StagingArea sa, Commit cm) {
+    public Repository(Head h, StagingArea sa, Commit cm, Branches b) {
         head = h;
         area = sa;
         currCommit = cm;
+        branches = b;
     }
 
     /** Save current state. */
     private void saveState() {
-        // TODO: save branches
+        branches.store();
         head.store();
         area.store();
     }
@@ -124,7 +131,8 @@ public class Repository {
         Head head = Head.read();
         StagingArea area = StagingArea.read();
         Commit currCommit = getCurrCommit(head);
-        return new Repository(head, area, currCommit);
+        Branches branches = Branches.read();
+        return new Repository(head, area, currCommit, branches);
     }
 
     /** Add file into staging area. */
@@ -156,8 +164,8 @@ public class Repository {
         area.clear();
         head.updateNext(newCommit.toSha1());
         newCommit.store();
+        branches.updateToNextCommit(head);
         saveState();
-        // TODO: branch change
     }
 
     /** Remove file. */
@@ -216,7 +224,7 @@ public class Repository {
             Main.exitWithMessage("No commit with that id exists.");
             return;
         }
-        Commit commit = Commit.read(commitFile.getName());
+        Commit commit = Commit.read(commitFile);
         String blobSha1 = commit.files().get(fileName);
         if (blobSha1 == null) {
             Main.exitWithMessage("File does not exist in that commit.");
@@ -224,4 +232,23 @@ public class Repository {
         Blob blob = Blob.read(blobSha1);
         blob.writeToCWD(fileName);
     }
+
+    /** Print out current status. */
+    public void status() {
+        System.out.println("=== Branches ===");
+        branches.dump();
+        System.out.println();
+        System.out.println("=== Staged Files ===");
+        area.dumpStagedFiles();
+        System.out.println();
+        System.out.println("=== Removed Files ===");
+        area.dumpRemovedFiles();
+        System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
+    }
+
+
 }
