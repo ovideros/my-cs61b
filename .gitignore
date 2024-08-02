@@ -390,3 +390,7 @@ tramp
 !byow/**/*.mp4
 !byow/**/*.gif
 !byow/**/*.wav
+
+!proj2/
+!proj2/testing/
+!proj2/testing/student_tests/
