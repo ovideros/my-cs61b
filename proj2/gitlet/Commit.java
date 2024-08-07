@@ -122,6 +122,17 @@ public class Commit implements Dumpable {
         return parent;
     }
 
+    /** Get the message of this commit. */
+    public String getMessage() {
+        return message;
+    }
+
+    /** Get the files of this commit. */
+    public Map<String, String> getFiles() {
+        return files;
+    }
+
+
     @Override
     public void dump() {
         System.out.println("===");

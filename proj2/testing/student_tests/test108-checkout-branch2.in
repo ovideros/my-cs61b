@@ -1,0 +1,35 @@
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
+> branch other
+<<<
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> commit "added wug.txt"
+<<<
+> checkout other
+<<<
++ wug.txt notwug.txt
++ notwug.txt wug.txt
+> add wug.txt
+<<<
+> add notwug.txt
+<<<
+> commit "added new"
+<<<
+> checkout master
+<<<
+= try.txt try.txt
+= wug.txt wug.txt
+* notwug.txt
+> checkout other
+<<<
+= try.txt try.txt
+= wug.txt notwug.txt
+= notwug.txt wug.txt

@@ -1,0 +1,50 @@
+# Check Status functionality
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
++ try.txt try2.txt
+> add try.txt
+<<<
+> commit "modified try.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+<<<*
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> commit "final commit"
+<<<
+> log
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+===
+${COMMIT_HEAD}
+${ARBLINE}
+
+===
+${COMMIT_HEAD}
+${ARBLINE}
+<<<*

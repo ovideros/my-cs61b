@@ -1,0 +1,52 @@
+# Check Status functionality
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of second version
+D UID2 "${1}"
+# UID of current version
+D UID1 "${2}"
+> find "initial commit"
+${UID1}
+<<<*
+> find "added try.txt"
+${UID2}
+<<<*
++ try2.txt try2.txt
+> add try2.txt
+<<<
+> commit "added try.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+<<<*
+D UID3 "${1}"
+> find "added try.txt"
+${ARBLINE}
+${ARBLINE}
+<<<*

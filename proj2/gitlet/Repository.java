@@ -3,6 +3,8 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static gitlet.Utils.*;
 
@@ -245,10 +247,126 @@ public class Repository {
         area.dumpRemovedFiles();
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
+        // TODO: EC
         System.out.println();
         System.out.println("=== Untracked Files ===");
         System.out.println();
     }
 
+    /** Print global-log. */
+    public void globalLog() {
+        List<String> folderNames = plainFilenamesIn(COMMITS_DIR);
+        if (folderNames == null) {
+            System.out.println("COMMITS NOT EXIST!!!");
+            return;
+        }
+        for (String folderName : folderNames) {
+            File folder = join(COMMITS_DIR, folderName);
+            List<String> commitSha1s = plainFilenamesIn(folder);
+            for (String sha1 : commitSha1s) {
+                Commit commit = Commit.read(sha1);
+                commit.dump();
+            }
+        }
+    }
+
+    /** Find commits with message, and print IDs. */
+    public void find(String msg) {
+        String[] folderNames = COMMITS_DIR.list();
+        if (folderNames.length == 0) {
+            System.out.println("COMMITS NOT EXIST!!!");
+            return;
+        }
+        for (String folderName : folderNames) {
+            File folder = join(COMMITS_DIR, folderName);
+            List<String> commitSha1s = plainFilenamesIn(folder);
+            for (String sha1 : commitSha1s) {
+                Commit commit = Commit.read(sha1);
+                if (commit.getMessage().equals(msg)) {
+                    System.out.println(commit.toSha1());
+                }
+            }
+        }
+    }
+
+    /** Convert Set of String to Array of String. */
+    public static String[] setToArray(Set<String> setOfString) {
+        // source: https://www.geeksforgeeks.org/convert-set-of-string-to-array-of-string-in-java/
+        String[] arrayOfString = new String[setOfString.size()];
+        int index = 0;
+        for (String str : setOfString) {
+            arrayOfString[index++] = str;
+        }
+        return arrayOfString;
+    }
+
+    /** Create new branch. */
+    public void branch(String branchName) {
+        if (branches.getMap().containsKey(branchName)) {
+            Main.exitWithMessage("A branch with that name already exists.");
+        }
+        branches.putBranch(branchName, head.next());
+        saveState();
+    }
+
+    /** Remove branch with that name. */
+    public void rmBranch(String branchName) {
+        if (!branches.getMap().containsKey(branchName)) {
+            Main.exitWithMessage("A branch with that name does not exists.");
+        }
+        if (branches.getActiveBranchName().equals(branchName)) {
+            Main.exitWithMessage("Cannot remove the current branch.");
+        }
+        branches.removeBranch(branchName);
+        saveState();
+    }
+
+    /** Checkout branch. */
+    public void checkoutBranch(String branchName) {
+        if (!branches.getMap().containsKey(branchName)) {
+            Main.exitWithMessage("No such branch exists.");
+        }
+        if (branches.getActiveBranchName().equals(branchName)) {
+            Main.exitWithMessage("No need to checkout the current branch.");
+        }
+        List<String> fileNames = plainFilenamesIn(CWD);
+        if (fileNames != null) {
+            for (String fileName : fileNames) {
+                if (!isTrackedFile(fileName)) {
+                    Main.exitWithMessage("There is an untracked file in the way;" +
+                            " delete it, or add and commit it first.");
+                }
+            }
+        }
+        String checkoutCommitSha1 = branches.getMap().get(branchName);
+        Commit checkoutCommit = Commit.read(checkoutCommitSha1);
+        Map<String, String> newFiles = checkoutCommit.getFiles();
+        for (String fileName : newFiles.keySet()) {
+            Blob blob = Blob.read(newFiles.get(fileName));
+            blob.writeToCWD(fileName);
+        }
+        if (fileNames != null) {
+            for (String fileName : fileNames) {
+                if (!newFiles.containsKey(fileName)) {
+                    File delFile = join(CWD, fileName);
+                    restrictedDelete(delFile);
+                }
+            }
+        }
+        head.updateNext(checkoutCommitSha1);
+        area.clear();
+        branches.setActiveBranch(branchName);
+        saveState();
+    }
+
+
+    /** Check whether tracked a file with that name. */
+    public boolean isTrackedFile(String fileName) {
+        if (area.getRemovalArea().containsKey(fileName)) {
+            return false;
+        }
+        return currCommit.getFiles().containsKey(fileName)
+                || area.getAdditionArea().containsKey(fileName);
+    }
 
 }

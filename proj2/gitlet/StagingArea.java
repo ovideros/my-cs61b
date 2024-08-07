@@ -57,7 +57,7 @@ public class StagingArea implements Dumpable {
     /** Dump staged files. */
     public void dumpStagedFiles() {
         Set<String> strs = additionArea.keySet();
-        String[] names = (String[]) strs.toArray();
+        String[] names = Repository.setToArray(strs);
         Arrays.sort(names);
         for (String name : names) {
             System.out.println(name);
@@ -67,7 +67,7 @@ public class StagingArea implements Dumpable {
     /** Dump removed files. */
     public void dumpRemovedFiles() {
         Set<String> strs = removalArea.keySet();
-        String[] names = (String[]) strs.toArray();
+        String[] names = Repository.setToArray(strs);
         Arrays.sort(names);
         for (String name : names) {
             System.out.println(name);

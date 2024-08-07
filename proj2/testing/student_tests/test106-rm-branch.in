@@ -1,58 +1,45 @@
-# Check Status functionality
 I definitions.inc
 > init
 <<<
 + try.txt try.txt
 > add try.txt
 <<<
-> status
-=== Branches ===
-*master
-
-=== Staged Files ===
-try.txt
-
-=== Removed Files ===
-
-=== Modifications Not Staged For Commit ===
-
-=== Untracked Files ===
-
-<<<
 > commit "added try.txt"
 <<<
-> rm try.txt
++ try2.txt try2.txt
+> add try2.txt
+<<<
+> commit "added try2.txt"
+<<<
+> branch newB
+<<<
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> commit "added wug.txt"
 <<<
 > status
 === Branches ===
 *master
+newB
 
 === Staged Files ===
 
 === Removed Files ===
-try.txt
 
 === Modifications Not Staged For Commit ===
 
 === Untracked Files ===
 
 <<<
-> commit "deleted try.txt"
+> rm-branch master
+Cannot remove the current branch.
 <<<
-> log
-===
-${COMMIT_HEAD}
-deleted try.txt
-
-===
-${COMMIT_HEAD}
-added try.txt
-
-===
-${COMMIT_HEAD}
-initial commit
-
-<<<*
+> rm-branch testify
+A branch with that name does not exists.
+<<<
+> rm-branch newB
+<<<
 > status
 === Branches ===
 *master

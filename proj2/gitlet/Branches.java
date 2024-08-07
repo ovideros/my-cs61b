@@ -63,14 +63,24 @@ public class Branches implements Dumpable {
     @Override
     public void dump() {
         Set<String> strs = nameToSha1.keySet();
-        String[] names = (String[]) strs.toArray();
+        String[] names = Repository.setToArray(strs);
         Arrays.sort(names);
         for (String name : names) {
             if (name.equals(activeBranchName)) {
-                System.out.println(name);
-            } else {
                 System.out.println("*" + name);
+            } else {
+                System.out.println(name);
             }
         }
     }
+
+    /** Get active branch name. */
+     public String getActiveBranchName() {
+        return activeBranchName;
+     }
+
+     /** Remove branch. */
+     public void removeBranch(String name) {
+         nameToSha1.remove(name);
+     }
 }

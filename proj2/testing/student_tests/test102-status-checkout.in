@@ -1,0 +1,63 @@
+# Check Status functionality
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
++ try.txt try2.txt
+> add try.txt
+<<<
+> commit "modified try.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+modified try.txt
+
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of second version
+D UID2 "${1}"
+# UID of current version
+D UID1 "${2}"
+> checkout ${UID1} -- try.txt
+<<<
+= try.txt try.txt
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> checkout ${UID2} -- try.txt
+<<<
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

@@ -47,13 +47,30 @@ public class Main {
                 } else if (args.length == 4) {
                     currRepo.checkoutCommitFile(args[1], args[3]);
                 } else {
+                    validateArgsNum(args, 2);
+                    currRepo.checkoutBranch(args[1]);
                     break;
-                    // TODO: fill in branches
                 }
                 break;
             case "status":
                 validateArgsNum(args, 1);
                 currRepo.status();
+                break;
+            case "global-log":
+                validateArgsNum(args, 1);
+                currRepo.globalLog();
+                break;
+            case "find":
+                validateArgsNum(args, 2);
+                currRepo.find(args[1]);
+                break;
+            case "branch":
+                validateArgsNum(args, 2);
+                currRepo.branch(args[1]);
+                break;
+            case "rm-branch":
+                validateArgsNum(args, 2);
+                currRepo.rmBranch(args[1]);
                 break;
             default:
                 exitWithMessage("No command with that name exists.");
