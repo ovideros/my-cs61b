@@ -1,0 +1,103 @@
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
+> branch other
+<<<
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> commit "added wug.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+added wug.txt
+
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of second version
+D UID2 "${1}"
+# UID of current version
+D UID1 "${2}"
+> checkout other
+<<<
++ wug.txt notwug.txt
++ notwug.txt wug.txt
+> add wug.txt
+<<<
+> add notwug.txt
+<<<
+> commit "added other"
+<<<
+> log
+===
+${COMMIT_HEAD}
+added other
+
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+D UID3 "${1}"
+> reset ${UID2}
+<<<
+= try.txt try.txt
+= wug.txt wug.txt
+* notwug.txt
+> status
+=== Branches ===
+master
+*other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> checkout master
+<<<
+> reset ${UID3}
+<<<
+= try.txt try.txt
+= wug.txt notwug.txt
+= notwug.txt wug.txt
+> status
+=== Branches ===
+*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> reset ${UID1}
+<<<
+* wug.txt
+* notwug.txt
+= try.txt try.txt

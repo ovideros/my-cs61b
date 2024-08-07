@@ -321,14 +321,8 @@ public class Repository {
         saveState();
     }
 
-    /** Checkout branch. */
-    public void checkoutBranch(String branchName) {
-        if (!branches.getMap().containsKey(branchName)) {
-            Main.exitWithMessage("No such branch exists.");
-        }
-        if (branches.getActiveBranchName().equals(branchName)) {
-            Main.exitWithMessage("No need to checkout the current branch.");
-        }
+    /** Checkout to commit. */
+    private void checkoutCommit(String commitSha1) {
         List<String> fileNames = plainFilenamesIn(CWD);
         if (fileNames != null) {
             for (String fileName : fileNames) {
@@ -338,8 +332,7 @@ public class Repository {
                 }
             }
         }
-        String checkoutCommitSha1 = branches.getMap().get(branchName);
-        Commit checkoutCommit = Commit.read(checkoutCommitSha1);
+        Commit checkoutCommit = Commit.read(commitSha1);
         Map<String, String> newFiles = checkoutCommit.getFiles();
         for (String fileName : newFiles.keySet()) {
             Blob blob = Blob.read(newFiles.get(fileName));
@@ -353,12 +346,37 @@ public class Repository {
                 }
             }
         }
-        head.updateNext(checkoutCommitSha1);
+        head.updateNext(commitSha1);
         area.clear();
+    }
+
+    /** Checkout branch. */
+    public void checkoutBranch(String branchName) {
+        if (!branches.getMap().containsKey(branchName)) {
+            Main.exitWithMessage("No such branch exists.");
+        }
+        if (branches.getActiveBranchName().equals(branchName)) {
+            Main.exitWithMessage("No need to checkout the current branch.");
+        }
+        String checkoutCommitSha1 = branches.getMap().get(branchName);
+        checkoutCommit(checkoutCommitSha1);
         branches.setActiveBranch(branchName);
         saveState();
     }
 
+    /** Reset to commit id. */
+    public void reset(String commitId) {
+        File commitFile = fileFromHTPrefix(COMMITS_DIR, commitId);
+        if (commitFile == null) {
+            Main.exitWithMessage("No commit with that id exists.");
+        }
+        Commit commit = Commit.read(commitFile);
+        checkoutCommit(commit.toSha1());
+        String branchName = branches.getActiveBranchName();
+        branches.getMap().put(branchName, commit.toSha1());
+        branches.setActiveBranch(branchName);
+        saveState();
+    }
 
     /** Check whether tracked a file with that name. */
     public boolean isTrackedFile(String fileName) {

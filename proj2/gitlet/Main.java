@@ -72,6 +72,10 @@ public class Main {
                 validateArgsNum(args, 2);
                 currRepo.rmBranch(args[1]);
                 break;
+            case "reset":
+                validateArgsNum(args, 2);
+                currRepo.reset(args[1]);
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }
