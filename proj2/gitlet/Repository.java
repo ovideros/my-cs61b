@@ -374,7 +374,6 @@ public class Repository {
         checkoutCommit(commit.toSha1());
         String branchName = branches.getActiveBranchName();
         branches.getMap().put(branchName, commit.toSha1());
-        branches.setActiveBranch(branchName);
         saveState();
     }
 
@@ -385,6 +384,80 @@ public class Repository {
         }
         return currCommit.getFiles().containsKey(fileName)
                 || area.getAdditionArea().containsKey(fileName);
+    }
+
+    /** Merge  from the given branch into current branch. */
+    public void merge(String branchName) {
+        if (!area.isClean()) {
+            Main.exitWithMessage("You have uncommitted changes.");
+        }
+        if (branches.getMap().get(branchName) == null) {
+            Main.exitWithMessage("A branch with that name does not exist.");
+        }
+        if (branches.getActiveBranchName().equals(branchName)) {
+            Main.exitWithMessage("Cannot merge a branch with itself.");
+        }
+        // TODO: more cases
+        String splitPointSha1 = findSplitPoint(branchName);
+        String mergeCommitSha1 = branches.getMap().get(branchName);
+        String currentCommitSha1 = head.next();
+        if (splitPointSha1.equals(mergeCommitSha1)) {
+            Main.exitWithMessage("Given branch is an ancestor of the current branch.");
+        }
+        if (splitPointSha1.equals(currentCommitSha1)) {
+            checkoutBranch(branchName);
+            Main.exitWithMessage("Current branch fast-forwarded.");
+        }
+        System.out.println(splitPointSha1);
+    }
+
+    /** Find and return split point commit SHA1. */
+    private String findSplitPoint(String branchName) {
+        // my thought comes from https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF
+        int lenA = ancestorLength(branches.getActiveBranchSha1());
+        int lenB = ancestorLength(branches.getMap().get(branchName));
+        String curA = head.next();
+        String curB = branches.getMap().get(branchName);
+        if (lenB > lenA) {
+            int tmpNum = lenA;
+            lenA = lenB;
+            lenB = tmpNum;
+            String tmpStr = curA;
+            curA = curB;
+            curB = tmpStr;
+        }
+        int gap = lenA - lenB;
+        while (gap > 0) {
+            curA = ancestor(curA);
+            gap -= 1;
+        }
+        while (!curA.isEmpty()) {
+            if (curA.equals(curB)) {
+                return curA;
+            }
+            curA = ancestor(curA);
+            curB = ancestor(curB);
+        }
+        return null;
+    }
+
+    /** Find and return the SHA1 of the ancestor of this commit. */
+    private String ancestor(String commitSha1) {
+        if (commitSha1.isEmpty()) {
+            Main.exitWithMessage("Null Pointer!!!");
+        }
+        Commit commit = Commit.read(commitSha1);
+        return commit.getParent();
+    }
+
+    /** Return the length of this commit. */
+    private int ancestorLength(String commitSha1) {
+        int count = 0;
+        while (!commitSha1.isEmpty()) {
+            commitSha1 = ancestor(commitSha1);
+            count += 1;
+        }
+        return count;
     }
 
 }

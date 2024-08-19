@@ -76,6 +76,10 @@ public class Main {
                 validateArgsNum(args, 2);
                 currRepo.reset(args[1]);
                 break;
+            case "merge":
+                validateArgsNum(args, 2);
+                currRepo.merge(args[1]);
+                break;
             default:
                 exitWithMessage("No command with that name exists.");
         }

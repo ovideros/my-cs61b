@@ -73,4 +73,9 @@ public class StagingArea implements Dumpable {
             System.out.println(name);
         }
     }
+
+    /** Check whether staging area is clean. */
+    public boolean isClean() {
+        return additionArea.isEmpty() && removalArea.isEmpty();
+    }
 }

@@ -2,7 +2,6 @@ package gitlet;
 
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,6 +76,11 @@ public class Branches implements Dumpable {
     /** Get active branch name. */
      public String getActiveBranchName() {
         return activeBranchName;
+     }
+
+     /** Get active branch SHA1. */
+     public String getActiveBranchSha1() {
+         return activeBranchSha1;
      }
 
      /** Remove branch. */

@@ -1,0 +1,46 @@
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
+> branch other
+<<<
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> merge other
+You have uncommitted changes.
+<<<
+> commit "added wug.txt"
+<<<
+> merge test
+A branch with that name does not exist.
+<<<
+> merge master
+Cannot merge a branch with itself.
+<<<
+> merge other
+Given branch is an ancestor of the current branch.
+<<<
+> checkout other
+<<<
+> merge master
+Current branch fast-forwarded.
+<<<
+> status
+=== Branches ===
+*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

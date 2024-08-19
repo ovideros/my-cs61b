@@ -1,0 +1,76 @@
+I definitions.inc
+> init
+<<<
++ try.txt try.txt
+> add try.txt
+<<<
+> commit "added try.txt"
+<<<
+> log
+===
+${COMMIT_HEAD}
+added try.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of second version
+D UID2 "${1}"
+> branch other
+<<<
++ wug.txt wug.txt
+> add wug.txt
+<<<
+> commit "added wug.txt"
+<<<
+> checkout other
+<<<
++ try.txt try2.txt
+> add try.txt
+<<<
+> commit "modified try.txt"
+<<<
+> checkout master
+<<<
+> log
+${ARBLINES}
+<<<*
+> merge other
+${UID2}
+<<<*
++ try2.txt try2.txt
+> add try2.txt
+<<<
+> commit "added try2.txt"
+<<<
+> merge other
+${UID2}
+<<<*
+> checkout other
+<<<
+> merge master
+${UID2}
+<<<*
++ try2.txt try.txt
+> add try2.txt
+<<<
+> commit "try2.txt"
+<<<
+> merge master
+${UID2}
+<<<*
++ try2.txt try2.txt
+> add try2.txt
+<<<
+> commit "modified try2fjkd"
+<<<
+> merge master
+${UID2}
+<<<*
+> checkout master
+<<<
+> merge other
+${UID2}
+<<<*
