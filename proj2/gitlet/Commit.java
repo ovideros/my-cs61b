@@ -23,8 +23,10 @@ public class Commit implements Dumpable {
     private String message;
     /** The timestamp of this Commit. */
     private Timestamp timeStamp;
-    /** The parent node of this Commit. */
+    /** The first parent node of this Commit. */
     private String parent;
+    /** The second parent node of this Commit. Only exits after merge. */
+    private String secondParent;
     /** The Mapping from file names to SHA1 values. */
     private Map<String, String> files;
     /** Default first commit time stamp. */
@@ -48,6 +50,7 @@ public class Commit implements Dumpable {
     public Commit(String msg, String parent) {
         this.message = msg;
         this.parent = parent;
+        this.secondParent = null;
         if (parent.isEmpty()) {
             this.timeStamp = EPOCH_TIME;
             this.files = new HashMap<>();
@@ -64,6 +67,13 @@ public class Commit implements Dumpable {
      * */
     public Commit newCommit(String msg) {
         return new Commit(msg, this.toSha1());
+    }
+
+    /** Create a new commit with two parents. */
+    public Commit newCommit(String msg, String secondParent) {
+        Commit newCm = newCommit(msg);
+        newCm.secondParent = secondParent;
+        return newCm;
     }
 
     /** Update this commit through staging area.

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,7 +150,11 @@ public class Repository {
         if (currCommit.files().get(fileName) != null
                 && currCommit.files().get(fileName).equals(sha1)) {
             area.getAdditionArea().remove(fileName);
+            saveState();
             System.exit(0);
+        }
+        if (area.getRemovalArea().get(fileName) != null) {
+            area.getRemovalArea().remove(fileName);
         }
         blob.store();
         area.getAdditionArea().put(fileName, sha1);
@@ -162,6 +167,17 @@ public class Repository {
             Main.exitWithMessage("No changes added to the commit.");
         }
         Commit newCommit = currCommit.newCommit(msg);
+        newCommit.updateFiles(area);
+        area.clear();
+        head.updateNext(newCommit.toSha1());
+        newCommit.store();
+        branches.updateToNextCommit(head);
+        saveState();
+    }
+
+    /** Commit with message. */
+    public void commit(String msg, String secondParentCommitSha1) {
+        Commit newCommit = currCommit.newCommit(msg, secondParentCommitSha1);
         newCommit.updateFiles(area);
         area.clear();
         head.updateNext(newCommit.toSha1());
@@ -408,7 +424,104 @@ public class Repository {
             checkoutBranch(branchName);
             Main.exitWithMessage("Current branch fast-forwarded.");
         }
-        System.out.println(splitPointSha1);
+
+        Commit splitCommit = Commit.read(splitPointSha1);
+        Commit mergeCommit = Commit.read(mergeCommitSha1);
+        Set<String> fileNames = new HashSet<>(splitCommit.files().keySet());
+        fileNames.addAll(mergeCommit.files().keySet());
+        fileNames.addAll(currCommit.files().keySet());
+        boolean hasMergeConflict = false;
+        for (String fileName : fileNames) {
+            String splitSha1 = splitCommit.files().get(fileName);
+            String headSha1 = currCommit.files().get(fileName);
+            String otherSha1 = mergeCommit.files().get(fileName);
+            String newFileSha1 = mergeFile(splitSha1, headSha1, otherSha1);
+            if (newFileSha1.isEmpty() && !(headSha1 == null)) {
+                rm(fileName);
+            } else if (!newFileSha1.equals(headSha1) && !newFileSha1.isEmpty()) {
+                if (!newFileSha1.equals(otherSha1)) {
+                    hasMergeConflict = true;
+                }
+                Blob blob = Blob.read(newFileSha1);
+                blob.writeToCWD(fileName);
+                area.getAdditionArea().put(fileName, newFileSha1);
+            }
+        }
+        String message = "Merged " + branchName + " into "
+                + branches.getActiveBranchName() + ".";
+        if (hasMergeConflict) {
+            System.out.println("Encountered a merge conflict.");
+        }
+        commit(message, mergeCommitSha1);
+
+        saveState();
+    }
+
+    /** Return the result blob SHA1 of merge. */
+    private String mergeFile(String splitSha1, String headSha1, String otherSha1) {
+        if (headSha1 == null && otherSha1 == null) {
+            // case 3 special
+            return "";
+        }
+        if (splitSha1 == null && headSha1 == null) {
+            // case 5
+            return otherSha1;
+        }
+        if (splitSha1 == null && otherSha1 == null) {
+            // case 4
+            return headSha1;
+        }
+        if (splitSha1 == null) {
+            if (otherSha1.equals(headSha1)) {
+                // case 3
+                return otherSha1;
+            } else {
+                Blob newBlob = createMergeBlob(headSha1, otherSha1);
+                newBlob.store();
+                return newBlob.toSha1();
+            }
+        }
+        if (splitSha1.equals(otherSha1) && headSha1 == null) {
+            // case 7
+            return "";
+        } else if (splitSha1.equals(headSha1) && otherSha1 == null) {
+            // case 6
+            return "";
+        } else if (splitSha1.equals(headSha1) && !splitSha1.equals(otherSha1)) {
+            // case 1
+            return otherSha1;
+        } else if (!splitSha1.equals(headSha1) && splitSha1.equals(otherSha1)) {
+            // case 2
+            return headSha1;
+        } else if (!splitSha1.equals(headSha1) && headSha1.equals(otherSha1)) {
+            // case 3
+            return headSha1;
+        } else {
+            Blob newBlob = createMergeBlob(headSha1, otherSha1);
+            newBlob.store();
+            return newBlob.toSha1();
+        }
+    }
+
+    /** Create a new Blob of merge message. */
+    private Blob createMergeBlob(String headSha1, String otherSha1) {
+        String headText, otherText;
+        if (headSha1 == null) {
+            headText = "";
+        } else {
+            Blob headBlob = Blob.read(headSha1);
+            headText = headBlob.text();
+        }
+        if (otherSha1 == null) {
+            otherText = "";
+        } else {
+            Blob otherBlob = Blob.read(otherSha1);
+            otherText = otherBlob.text();
+        }
+        String newText;
+        newText = "<<<<<<< HEAD\n" + headText
+                + "=======\n" + otherText + ">>>>>>>\n";
+        return new Blob(newText);
     }
 
     /** Find and return split point commit SHA1. */
