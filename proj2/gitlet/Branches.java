@@ -13,7 +13,7 @@ public class Branches implements Dumpable {
     private Map<String, String> nameToSha1;
     private String activeBranchName;
     private String activeBranchSha1;
-    private static final String name = "BRANCHES";
+    private static final String NAME = "BRANCHES";
 
     /** Constructor of Branches. */
     public Branches() {
@@ -42,12 +42,12 @@ public class Branches implements Dumpable {
 
     /** Store current branches. */
     public void store() {
-        Repository.storeInName(Repository.GITLET_DIR, this, name);
+        Repository.storeInName(Repository.GITLET_DIR, this, NAME);
     }
 
     /** Read branches from file. */
     public static Branches read() {
-        File file = join(Repository.GITLET_DIR, name);
+        File file = join(Repository.GITLET_DIR, NAME);
         return Utils.readObject(file, Branches.class);
     }
 
@@ -74,17 +74,17 @@ public class Branches implements Dumpable {
     }
 
     /** Get active branch name. */
-     public String getActiveBranchName() {
+    public String getActiveBranchName() {
         return activeBranchName;
-     }
+    }
 
-     /** Get active branch SHA1. */
-     public String getActiveBranchSha1() {
-         return activeBranchSha1;
-     }
+    /** Get active branch SHA1. */
+    public String getActiveBranchSha1() {
+        return activeBranchSha1;
+    }
 
-     /** Remove branch. */
-     public void removeBranch(String name) {
-         nameToSha1.remove(name);
-     }
+    /** Remove branch. */
+    public void removeBranch(String name) {
+        nameToSha1.remove(name);
+    }
 }

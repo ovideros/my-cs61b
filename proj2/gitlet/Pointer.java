@@ -16,7 +16,7 @@ public class Pointer implements Serializable {
     }
 
     /** Update this pointer with new next value. */
-    public void updateNext(String next) {
-        this.next = next;
+    public void updateNext(String nt) {
+        this.next = nt;
     }
 }

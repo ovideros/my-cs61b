@@ -23,6 +23,9 @@ public class Head extends Pointer {
      */
     public static Head read() {
         File headFile = join(Repository.GITLET_DIR, NAME);
+        if (!headFile.exists()) {
+            return null;
+        }
         return Utils.readObject(headFile, Head.class);
     }
 }

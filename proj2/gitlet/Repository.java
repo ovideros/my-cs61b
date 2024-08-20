@@ -132,6 +132,9 @@ public class Repository {
      */
     public static Repository load() {
         Head head = Head.read();
+        if (head == null) {
+            return null;
+        }
         StagingArea area = StagingArea.read();
         Commit currCommit = getCurrCommit(head);
         Branches branches = Branches.read();
@@ -147,14 +150,16 @@ public class Repository {
         String fileContents = Utils.readContentsAsString(file);
         Blob blob = new Blob(fileContents);
         String sha1 = blob.toSha1();
+        if (area.getRemovalArea().get(fileName) != null) {
+            area.getRemovalArea().remove(fileName);
+            saveState();
+            System.exit(0);
+        }
         if (currCommit.files().get(fileName) != null
                 && currCommit.files().get(fileName).equals(sha1)) {
             area.getAdditionArea().remove(fileName);
             saveState();
             System.exit(0);
-        }
-        if (area.getRemovalArea().get(fileName) != null) {
-            area.getRemovalArea().remove(fileName);
         }
         blob.store();
         area.getAdditionArea().put(fileName, sha1);
@@ -271,13 +276,8 @@ public class Repository {
 
     /** Print global-log. */
     public void globalLog() {
-        List<String> folderNames = plainFilenamesIn(COMMITS_DIR);
-        if (folderNames == null) {
-            System.out.println("COMMITS NOT EXIST!!!");
-            return;
-        }
-        for (String folderName : folderNames) {
-            File folder = join(COMMITS_DIR, folderName);
+        File[] folders = COMMITS_DIR.listFiles();
+        for (File folder : folders) {
             List<String> commitSha1s = plainFilenamesIn(folder);
             for (String sha1 : commitSha1s) {
                 Commit commit = Commit.read(sha1);
@@ -293,15 +293,20 @@ public class Repository {
             System.out.println("COMMITS NOT EXIST!!!");
             return;
         }
+        boolean isFound = false;
         for (String folderName : folderNames) {
             File folder = join(COMMITS_DIR, folderName);
             List<String> commitSha1s = plainFilenamesIn(folder);
             for (String sha1 : commitSha1s) {
                 Commit commit = Commit.read(sha1);
                 if (commit.getMessage().equals(msg)) {
+                    isFound = true;
                     System.out.println(commit.toSha1());
                 }
             }
+        }
+        if (!isFound) {
+            System.out.println("Found no commit with that message.");
         }
     }
 
@@ -343,8 +348,8 @@ public class Repository {
         if (fileNames != null) {
             for (String fileName : fileNames) {
                 if (!isTrackedFile(fileName)) {
-                    Main.exitWithMessage("There is an untracked file in the way;" +
-                            " delete it, or add and commit it first.");
+                    Main.exitWithMessage("There is an untracked file in the way;"
+                            + " delete it, or add and commit it first.");
                 }
             }
         }
@@ -526,7 +531,8 @@ public class Repository {
 
     /** Find and return split point commit SHA1. */
     private String findSplitPoint(String branchName) {
-        // my thought comes from https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF
+        // my thought comes from https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.
+        // 07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF
         int lenA = ancestorLength(branches.getActiveBranchSha1());
         int lenB = ancestorLength(branches.getMap().get(branchName));
         String curA = head.next();

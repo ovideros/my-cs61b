@@ -16,6 +16,9 @@ public class Main {
         Repository currRepo = null;
         if (!args[0].equals("init")) {
             currRepo = Repository.load();
+            if (currRepo == null) {
+                exitWithMessage("Not in an initialized Gitlet directory.");
+            }
         }
         switch (firstArg) {
             case "init":
@@ -27,7 +30,7 @@ public class Main {
                 currRepo.add(args[1]);
                 break;
             case "commit":
-                if (args.length == 1) {
+                if (args.length == 1 || args[1].isEmpty()) {
                     exitWithMessage("Please enter a commit message.");
                 }
                 validateArgsNum(args, 2);
@@ -45,6 +48,9 @@ public class Main {
                 if (args.length == 3) {
                     currRepo.checkoutFile(args[2]);
                 } else if (args.length == 4) {
+                    if (!args[2].equals("--")) {
+                        exitWithMessage("Incorrect operands.");
+                    }
                     currRepo.checkoutCommitFile(args[1], args[3]);
                 } else {
                     validateArgsNum(args, 2);

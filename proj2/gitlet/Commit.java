@@ -70,9 +70,9 @@ public class Commit implements Dumpable {
     }
 
     /** Create a new commit with two parents. */
-    public Commit newCommit(String msg, String secondParent) {
+    public Commit newCommit(String msg, String sParent) {
         Commit newCm = newCommit(msg);
-        newCm.secondParent = secondParent;
+        newCm.secondParent = sParent;
         return newCm;
     }
 
